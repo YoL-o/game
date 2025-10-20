@@ -1,0 +1,610 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  touch-action: none;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.welcome-screen {
+  text-align: center;
+  padding: 20px;
+}
+
+.welcome-screen h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-screen p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: bold;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.game-screen {
+  width: 100%;
+  height: 100%;
+}
+
+.game-header {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 10;
+}
+
+.skip-btn {
+  padding: 8px 15px;
+  font-size: 0.8rem;
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.game-header h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.game-stats {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.game-area {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(600px, 90vw);
+  height: min(800px, 85vh);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.basket {
+  position: absolute;
+  bottom: 20px;
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  transition: left 0.1s linear;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.falling-heart {
+  position: absolute;
+  font-size: 2rem;
+  transition: none;
+  pointer-events: none;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.memory-card {
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 15px;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.memory-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.memory-card.matched {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border-radius: 15px;
+}
+
+.card-front {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.card-back {
+  background: white;
+  transform: rotateY(180deg);
+}
+
+.maze-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maze {
+  display: grid;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px;
+  border-radius: 10px;
+}
+
+.maze-cell {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.maze-cell.wall {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.maze-cell.player {
+  background: #ff6b9d;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #ff6b9d;
+}
+
+.maze-cell.goal {
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+.maze-cell.obstacle {
+  background: #ef4444;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.8); opacity: 0.6; }
+}
+
+.reward-screen {
+  text-align: center;
+  padding: 40px;
+}
+
+.reward-screen h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.reward-screen p {
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.voice-player {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px 0;
+}
+
+.voice-player button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.voice-player button:hover {
+  transform: scale(1.05);
+}
+
+.finale-screen {
+  text-align: center;
+  padding: 40px;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.note-container {
+  background: white;
+  color: #333;
+  padding: 40px;
+  border-radius: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: unfold 1.5s ease-out;
+}
+
+@keyframes unfold {
+  0% {
+    transform: scaleY(0) rotateX(-90deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleY(0.5) rotateX(-45deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scaleY(1) rotateX(0);
+    opacity: 1;
+  }
+}
+
+.note-container h2 {
+  color: #667eea;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.note-container p {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.note-signature {
+  text-align: right;
+  font-style: italic;
+  margin-top: 30px;
+  color: #764ba2;
+}
+
+.controls-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.rhythm-game {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rhythm-center {
+  position: absolute;
+  /* Centering is now handled by flexbox on parent */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 4px solid white;
+  animation: pulse-ring 1s infinite;
+  z-index: 10;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+}
+
+.rhythm-heart {
+  position: absolute;
+  top: 50%; /* Start at center for transform origin */
+  left: 50%;
+  font-size: 2.5rem;
+  pointer-events: all;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.rhythm-heart:active {
+  transform: scale(0.9);
+}
+
+.rhythm-feedback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  font-weight: bold;
+  pointer-events: none;
+  animation: fade-up 0.5s ease-out;
+  z-index: 20;
+}
+
+@keyframes fade-up {
+  0% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(-50%, -150%); }
+}
+
+.puzzle-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: min(400px, 90vw);
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.puzzle-piece {
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  user-select: none;
+}
+
+.puzzle-piece:active {
+  transform: scale(0.95);
+}
+
+.puzzle-piece.correct {
+  animation: glow-success 0.5s;
+  pointer-events: none;
+}
+
+@keyframes glow-success {
+  0%, 100% { box-shadow: 0 0 0 rgba(72, 222, 128, 0); }
+  50% { box-shadow: 0 0 30px rgba(72, 222, 128, 0.8); }
+}
+
+/* Stage 4: Flappy Heart */
+.flappy-game-area {
+  background: linear-gradient(to bottom, #89f7fe 0%, #66a6ff 100%);
+}
+
+#flappy-heart {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  left: 50px;
+  font-size: 2.5rem;
+  line-height: 1;
+  user-select: none;
+}
+
+.flappy-obstacle {
+  position: absolute;
+  width: 60px;
+  background: linear-gradient(to right, #4ade80, #34d399);
+  border: 3px solid white;
+}
+
+.flappy-obstacle.top {
+  top: 0;
+  border-top: 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.flappy-obstacle.bottom {
+  bottom: 0;
+  border-bottom: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Stage 5: Lights Out */
+.lights-out-grid {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+}
+
+.light-cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.light-cell.on {
+  background-color: #ff6b9d;
+  box-shadow: 0 0 25px #ff6b9d, 0 0 40px #ff87ab;
+  animation: pulse 1.5s infinite;
+}
+
+.light-cell:active {
+    transform: scale(0.9);
+}
+
+/* Stage 5: Whack-a-Heart */
+.whack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  padding: 20px;
+  width: min(450px, 90vw); /* Adjust grid size */
+  height: min(450px, 90vw);
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+}
+
+.whack-hole {
+  aspect-ratio: 1;
+  background-color: #5a3c2b; /* Dirt color */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  cursor: pointer;
+  transition: background-color 0.1s;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.whack-hole.active {
+  background-color: #7b5e4d; /* Lighter dirt when active */
+  transform: translateY(-5px); /* Simulate heart popping up */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+  .welcome-screen h1 {
+    font-size: 2rem;
+  }
+
+  .welcome-screen p {
+    font-size: 1rem;
+  }
+
+  .game-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .game-stats {
+    font-size: 1rem;
+    gap: 15px;
+  }
+
+  .memory-grid {
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .card-front, .card-back {
+    font-size: 2rem;
+  }
+
+  .maze-cell {
+    width: 30px;
+    height: 30px;
+  }
+
+  .note-container {
+    padding: 25px;
+  }
+
+  .note-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .note-container p {
+    font-size: 1rem;
+  }
+
+  .basket {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+
+  .falling-heart {
+    font-size: 1.5rem;
+  }
+
+  .rhythm-center {
+    width: 80px;
+    height: 80px;
+  }
+
+  .rhythm-heart {
+    font-size: 2rem;
+  }
+}
